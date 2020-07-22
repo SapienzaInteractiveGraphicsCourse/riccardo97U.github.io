@@ -46,9 +46,12 @@ let corridor;
 let spider;
 let explosion;
 
+let points=0;
+
 let groupRun = new TWEEN.Group();
 let groupJump = new TWEEN.Group();
 let groupSlide = new TWEEN.Group();
+let groupMove = new TWEEN.Group();
 
 canvas.style.display = 'none';
 
@@ -133,7 +136,6 @@ function init() {
 
             //     // collidableMeshList.push(clonedModel.children[0]);
             //     break;
-
         }
         root.add(clonedModel);
         scene.add(root);
@@ -152,7 +154,11 @@ function init() {
 
     explosion = new THREE.Mesh(new THREE.IcosahedronGeometry( 20, 4 ), material);
 
-    laser(-60);
+    // laser(-60);
+
+    // document.getElementById("audio").play();
+    // var audio = new Audio("/res/audio/SpaceEngine 0.990 - Steam Release Trailer [YTmp3.net].mp3");
+    // audio.loop = true;
 
     // hide loading bar
     const loadingElem = document.querySelector('#loading');
@@ -270,6 +276,11 @@ function run(){
     startRightLeg.start();
     
     running = true;
+
+
+    // document.getElementById('audio2').loop=true;
+    // document.getElementById('audio2').play();
+    // document.getElementById('audio2').playbackRate = speed/150;
 }
 
 function jump(speed = gameSpeed/25){
@@ -337,6 +348,9 @@ function jump(speed = gameSpeed/25){
     startRightLeg.start();
     
     jumping = true;
+
+
+    document.getElementById('audio2').loop=false;
 }
 
 function slide(speed = gameSpeed/30){
@@ -388,13 +402,13 @@ function slide(speed = gameSpeed/30){
     let moveRobot = new TWEEN.Tween(robot, groupSlide).to({rotation: {x:'+1.5'}, position:{y:'+0.1'}}, speed*1.7)
         .onComplete(
             function(){
-                let rotateSpine = new TWEEN.Tween(robotParts[10].rotation, groupSlide).to({z:0.3}, speed*1.6).delay(250);
-                let rotateSpine2 = new TWEEN.Tween(robotParts[21].rotation, groupSlide).to({z:0.3}, speed*1.6).delay(250);
+                let rotateSpine = new TWEEN.Tween(robotParts[10].rotation, groupSlide).to({z:0.3}, speed*1.6).delay(speed*2);
+                let rotateSpine2 = new TWEEN.Tween(robotParts[21].rotation, groupSlide).to({z:0.3}, speed*1.6).delay(speed*2);
                 rotateSpine.start();
                 rotateSpine2.start();
             }
         );
-    let moveRobot2 = new TWEEN.Tween(robot, groupSlide).to({rotation: {x:'-1.5'}, position:{y:'-0.1'}}, speed*1.8).delay(300)
+    let moveRobot2 = new TWEEN.Tween(robot, groupSlide).to({rotation: {x:'-1.5'}, position:{y:'-0.1'}}, speed*1.8).delay(speed*2.3)
     .onComplete(
         function(){
             groupSlide.removeAll();
@@ -412,6 +426,9 @@ function slide(speed = gameSpeed/30){
     startLeftLeg.start();
     startLeftArm.start();    
     startRightLeg.start();
+
+
+    document.getElementById('audio2').loop=false;
 }
 
 const render = function() {
@@ -427,13 +444,24 @@ const render = function() {
 
     requestAnimationFrame(render);
 
-    if(robot!=null ){
+    if(robot!=null  && started){
         if(robot.position.z < new THREE.Box3().setFromObject(corridor).min.z+180)
             createCorridor();
 
+        if(robot.position.z < -55 && (robot.position.z-8) % 25.33 > -0.2 ){
+            document.getElementById('audio4').play();
+            points+=5;
+            console.log(corridorCounter);
+        }
+
+        if(!exploding) {
+            points+=0.1; 
+            document.getElementById('score').innerHTML = `Score: ${Math.floor(points)}`; 
+        }
+
         var robotBox = new THREE.Box3().setFromObject(robot);
-        robotBox.expandByScalar(-0.2);
-        
+        robotBox.expandByScalar(-0.25);
+
         // var helper = new THREE.Box3Helper(robotBox, 0xffff00 );
         // scene.add( helper );
         if(!exploding && collide(new THREE.Box3().setFromObject(robot)))
@@ -444,6 +472,8 @@ const render = function() {
     if (jumping) groupJump.update();
     if (sliding) groupSlide.update();
 
+    groupMove.update();
+
     TWEEN.update();
     renderer.render(scene, camera);  
   }
@@ -453,24 +483,20 @@ window.addEventListener('keydown', (e) => {
         if(started) {
             groupRun.removeAll(); 
             groupJump.removeAll(); 
+            groupMove.removeAll();
             TWEEN.removeAll();
             started=false;
             running = false;
         }
 
         else {
+            document.getElementById('audio').play();
+            document.getElementById('audio').loop=true;
+            // document.getElementById('audio2').play();
+            // document.getElementById('audio2').loop=true;
             started = true;
             running = true;
-            let moveRobot = new TWEEN.Tween(robot).to({position: {z:'-50'}}, gameSpeed);
-            let moveRobot2 = new TWEEN.Tween(robot).to({position: {z:'-50'}}, gameSpeed);
-            moveRobot.chain(moveRobot2);
-            moveRobot2.chain(moveRobot);
-            moveRobot.start();
-            let moveCamera = new TWEEN.Tween(camera).to({position: {z:'-50'}}, gameSpeed);
-            let moveCamera2 = new TWEEN.Tween(camera).to({position: {z:'-50'}}, gameSpeed);
-            moveCamera.chain(moveCamera2);
-            moveCamera2.chain(moveCamera);
-            moveCamera.start();
+            moveForward();
 
             // let moveShip = new TWEEN.Tween(spaceship).to({position: {z:'+60'}}, gameSpeed);
             // let moveShip2 = new TWEEN.Tween(spaceship).to({position: {z:'+60'}}, gameSpeed);
@@ -489,6 +515,8 @@ window.addEventListener('keydown', (e) => {
             running = false;
             jumping = true;
             jump();
+
+            // document.getElementById('audio4').play();
         }
     }
     // down arrow
@@ -499,6 +527,7 @@ window.addEventListener('keydown', (e) => {
             running = false;
             sliding = true;
             slide();
+            // document.getElementById('audio4').play();
         }
     }
     // left arrow
@@ -514,10 +543,10 @@ window.addEventListener('keydown', (e) => {
         }
     }
 
-    // 0 num
-    if(e.keyCode == 48) {
-        explode();
-    }
+    // // 0 num
+    // if(e.keyCode == 48) {
+    //     explode();
+    // }
 });
 
 function explode(){
@@ -525,6 +554,10 @@ function explode(){
     TWEEN.removeAll();
     groupRun.removeAll();
     groupJump.removeAll();
+    groupMove.removeAll();
+
+    document.getElementById('audio3').play();
+    document.getElementById('audio2').loop=false;
     explosion.position.set(robot.position.x,robot.position.y+1,robot.position.z);
     explosion.scale.set(0.01,0.01,0.01);
     scene.add(explosion);
@@ -532,6 +565,9 @@ function explode(){
         scale: {x:0.2,y:0.2,z:0.2},
         rotation: {x:0.8,y:0.8,z:0.8}
     }, 350).start();
+
+    document.getElementById("gameOver").style.display = "block";
+    document.getElementById("finalScore").innerHTML = `You scored ${Math.floor(points)} points!`;    
 }
 
 function collide(objectBox){
@@ -613,5 +649,22 @@ function createCorridor(){
     
     for (let i=0; (i+1)*25<76; i++)
         laser(max-i*25);
-    gameSpeed-=100;
+    gameSpeed-=80;
+
+    groupMove.removeAll();
+    if(started)
+        moveForward();
+}
+
+function moveForward(){
+    let moveRobot = new TWEEN.Tween(robot, groupMove).to({position: {z:'-50'}}, gameSpeed);
+    let moveRobot2 = new TWEEN.Tween(robot, groupMove).to({position: {z:'-50'}}, gameSpeed);
+    moveRobot.chain(moveRobot2);
+    moveRobot2.chain(moveRobot);
+    moveRobot.start();
+    let moveCamera = new TWEEN.Tween(camera, groupMove).to({position: {z:'-50'}}, gameSpeed);
+    let moveCamera2 = new TWEEN.Tween(camera, groupMove).to({position: {z:'-50'}}, gameSpeed);
+    moveCamera.chain(moveCamera2);
+    moveCamera2.chain(moveCamera);
+    moveCamera.start();
 }
