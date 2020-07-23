@@ -2,7 +2,6 @@
 
 import TWEEN from './node_modules/tween/tween.esm.js';
 import * as THREE from './node_modules/three/build/three.module.js';
-// import {OrbitControls} from './node_modules/three/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import {SkeletonUtils} from './node_modules/three/examples/jsm/utils/SkeletonUtils.js';
 
@@ -25,25 +24,21 @@ const aspect = window.innerWidth / window.innerHeight;
 const near = 0.1;
 const far = 180;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.z = 5;
-camera.position.y = 3;
 
-// const controls = new OrbitControls(camera, canvas);
-// controls.update();
+camera.position.z = -5;
+camera.position.y = 2.3;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('black');
 
 let robotParts = [];
-let spiderParts = [];
 let robotMesh = [];
 
 let collidableMeshList=[];
-let corridorCounter=0;
+// let corridorCounter=0;
 
 let robot;
 let corridor;
-let spider;
 let explosion;
 
 let points=0;
@@ -66,7 +61,6 @@ manager.onProgress = (url, itemsLoaded, itemsTotal) => {
 const models = {
   robot:    { url: '/res/models/biped_robot/scene.gltf' },
   corridor:    { url: '/res/models/corridor2/scene.gltf' },
-  spider:    { url: '/res/models/spider_bot/scene.gltf'},
 };
 {
   const gltfLoader = new GLTFLoader(manager);
@@ -82,7 +76,7 @@ function init() {
 
     let ratio = window.devicePixelRatio;
     renderer.setSize( window.innerWidth*ratio, window.innerHeight*ratio );
-
+1
     const color = 0xFFFFFF;
     const intensity = 1;
     const light = new THREE.DirectionalLight(color, intensity);
@@ -97,16 +91,14 @@ function init() {
         switch(model.url){
             case models.robot.url : 
                 clonedModel.scale.set(0.01,0.01,0.01);
-                clonedModel.position.set(0,0,0);
-                clonedModel.rotation.set(0,3.15,0);
+                clonedModel.position.set(0,0.22,-9);
                 clonedModel.traverse( function ( node ) {
                     if (node.isMesh){ 
-                        node.castShadow = true;
+                        node.castShadow = false;
                         robotMesh.push(node);
                     }
                     robotParts.push(node);
                 });
-                console.log(robotParts);
                 robot = clonedModel;
                 break;
             
@@ -119,23 +111,6 @@ function init() {
                 });
                 createCorridor();
                 break;
-
-            // case models.spider.url:
-            //     clonedModel.children[0].position.set(0,0.7,-100);
-            //     clonedModel.children[0].scale.set(0.2,0.2,0.2);
-            //     spider = root //clonedModel.children[0];
-            //     clonedModel.children[0].traverse( function ( node ) {
-            //         if (node.isMesh) {
-            //             node.receiveShadow = true;
-            //             node.castShadow = true;
-            //         }
-            //         if (node.isLight) node.castShadow = true;
-            //         spiderParts.push(node);
-            //     });
-            //     console.log(spiderParts);
-
-            //     // collidableMeshList.push(clonedModel.children[0]);
-            //     break;
         }
         root.add(clonedModel);
         scene.add(root);
@@ -154,32 +129,19 @@ function init() {
 
     explosion = new THREE.Mesh(new THREE.IcosahedronGeometry( 20, 4 ), material);
 
-    // laser(-60);
-
-    // document.getElementById("audio").play();
-    // var audio = new Audio("/res/audio/SpaceEngine 0.990 - Steam Release Trailer [YTmp3.net].mp3");
-    // audio.loop = true;
-
     // hide loading bar
     const loadingElem = document.querySelector('#loading');
     canvas.style.display = 'block';
     loadingElem.style.display = 'none';
 
+    //show menu
+    document.getElementById('playbtn').onclick = startGame;
+    document.getElementById('audiobtn').onclick = changeAudio;
+    document.getElementById('restartbtn').onclick = restartGame;
+    document.getElementById('gameMenu').style.display = 'block';
+
+
     requestAnimationFrame(render);
-}
-
-
-function dumpObject(obj, lines = [], isLast = true, prefix = '') 
-{
-    const localPrefix = isLast ? '└─' : '├─';
-    lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
-    const newPrefix = prefix + (isLast ? '  ' : '│ ');
-    const lastNdx = obj.children.length - 1;
-    obj.children.forEach((child, ndx) => {
-      const isLast = ndx === lastNdx;
-      dumpObject(child, lines, isLast, newPrefix);
-    });
-    return lines;
 }
 
 function run(){
@@ -329,8 +291,8 @@ function jump(speed = gameSpeed/25){
             }]
         }]}, speed*2);
 
-    let moveRobot = new TWEEN.Tween(robot, groupJump).to({position: {y:'+2.6'}}, speed*2.5);
-    let moveRobot2 = new TWEEN.Tween(robot, groupJump).to({position: {y:'-2.6'}}, speed*2.5).onComplete(
+    let moveRobot = new TWEEN.Tween(robot, groupJump).to({position: {y:'+2.2'}}, speed*2.5);
+    let moveRobot2 = new TWEEN.Tween(robot, groupJump).to({position: {y:'-2.2'}}, speed*2.5).onComplete(
         function(){
             groupJump.removeAll();
             jumping = false;
@@ -350,7 +312,7 @@ function jump(speed = gameSpeed/25){
     jumping = true;
 
 
-    document.getElementById('audio2').loop=false;
+    // document.getElementById('audio2').loop=false;
 }
 
 function slide(speed = gameSpeed/30){
@@ -428,14 +390,13 @@ function slide(speed = gameSpeed/30){
     startRightLeg.start();
 
 
-    document.getElementById('audio2').loop=false;
+    // document.getElementById('audio2').loop=false;
 }
 
 const render = function() {
     
     let newSize = window.innerWidth / window.innerHeight;
-    if (newSize != camera.aspect)
-    {
+    if (newSize != camera.aspect){
         camera.aspect = newSize;
         camera.updateProjectionMatrix();
         let ratio = window.devicePixelRatio;
@@ -451,7 +412,6 @@ const render = function() {
         if(robot.position.z < -55 && (robot.position.z-8) % 25.33 > -0.2 ){
             document.getElementById('audio4').play();
             points+=5;
-            console.log(corridorCounter);
         }
 
         if(!exploding) {
@@ -462,8 +422,6 @@ const render = function() {
         var robotBox = new THREE.Box3().setFromObject(robot);
         robotBox.expandByScalar(-0.25);
 
-        // var helper = new THREE.Box3Helper(robotBox, 0xffff00 );
-        // scene.add( helper );
         if(!exploding && collide(new THREE.Box3().setFromObject(robot)))
             explode();
     }
@@ -479,8 +437,12 @@ const render = function() {
   }
 
 window.addEventListener('keydown', (e) => {
+    //space bar
     if(e.keyCode == 32) {
-        if(started) {
+        if(started && !jumping && !sliding && !exploding) {
+            document.getElementById('btnText').innerHTML = 'Resume';
+            document.getElementById('gameMenu').style.display = 'block';
+
             groupRun.removeAll(); 
             groupJump.removeAll(); 
             groupMove.removeAll();
@@ -488,46 +450,24 @@ window.addEventListener('keydown', (e) => {
             started=false;
             running = false;
         }
-
-        else {
-            document.getElementById('audio').play();
-            document.getElementById('audio').loop=true;
-            // document.getElementById('audio2').play();
-            // document.getElementById('audio2').loop=true;
-            started = true;
-            running = true;
-            moveForward();
-
-            // let moveShip = new TWEEN.Tween(spaceship).to({position: {z:'+60'}}, gameSpeed);
-            // let moveShip2 = new TWEEN.Tween(spaceship).to({position: {z:'+60'}}, gameSpeed);
-            // moveShip.chain(moveShip2);
-            // moveShip2.chain(moveShip);
-            // moveShip.start();
-        
-            run();
-        }
+        // else if(!exploding) startGame();
     }
     // up arrow
     if(e.keyCode == 38) {
         if(running && !jumping && !sliding) {
-            groupRun.removeAll(); 
-            // TWEEN.removeAll();
+            groupRun.removeAll();
             running = false;
             jumping = true;
             jump();
-
-            // document.getElementById('audio4').play();
         }
     }
     // down arrow
     if(e.keyCode == 40) {
         if(running && !jumping && !sliding) {
             groupRun.removeAll(); 
-            // TWEEN.removeAll();
             running = false;
             sliding = true;
             slide();
-            // document.getElementById('audio4').play();
         }
     }
     // left arrow
@@ -542,11 +482,6 @@ window.addEventListener('keydown', (e) => {
             new TWEEN.Tween(robot).to({position: {x:'-1'}}, 100).start();
         }
     }
-
-    // // 0 num
-    // if(e.keyCode == 48) {
-    //     explode();
-    // }
 });
 
 function explode(){
@@ -557,8 +492,8 @@ function explode(){
     groupMove.removeAll();
 
     document.getElementById('audio3').play();
-    document.getElementById('audio2').loop=false;
-    explosion.position.set(robot.position.x,robot.position.y+1,robot.position.z);
+    // document.getElementById('audio2').loop=false;
+    explosion.position.set(robot.position.x,robot.position.y+1,robot.position.z-1);
     explosion.scale.set(0.01,0.01,0.01);
     scene.add(explosion);
     new TWEEN.Tween(explosion).to({
@@ -582,6 +517,7 @@ function collide(objectBox){
 
 function laser(distance){
     var geometry = new THREE.CylinderGeometry(0.06, 0.06, 20, 20);
+    geometry.name='laser';
     var color;
     switch(Math.floor(Math.random()*4)){
         case 0: color = '#ff0000';break;
@@ -638,7 +574,7 @@ function laser(distance){
 }
 
 function createCorridor(){
-    corridorCounter++;
+    // corridorCounter++;
     let cor = corridor.clone();
     cor.position.z = new THREE.Box3().setFromObject(corridor).min.z;
     corridor = cor;
@@ -667,4 +603,61 @@ function moveForward(){
     moveCamera.chain(moveCamera2);
     moveCamera2.chain(moveCamera);
     moveCamera.start();
+}
+
+
+function startGame(){
+    document.getElementById('gameMenu').style.display = 'none';
+    document.getElementById('audio').play();
+    document.getElementById('audio').loop=true;
+
+    new TWEEN.Tween(robot).to({rotation: {y:3.15}}, 300).start();
+    started = true;
+    running = true;
+
+    moveForward();
+
+    run();
+}
+
+function changeAudio(){
+    if(document.getElementById('btnAudio').innerHTML == 'Audio ON'){
+        document.getElementById('btnAudio').innerHTML = 'Audio OFF';
+        document.getElementById('audio').muted = true;
+        document.getElementById('audio3').muted = true;
+        document.getElementById('audio4').muted = true;
+    }else{
+        document.getElementById('btnAudio').innerHTML = 'Audio ON';
+        document.getElementById('audio').muted = false;
+        document.getElementById('audio3').muted = false;
+        document.getElementById('audio4').muted = false;
+    }    
+    
+}
+
+function restartGame(){
+    document.getElementById('gameOver').style.display = 'none';
+    running = false;
+    jumping = false;
+    sliding = false;
+    exploding = false;
+    gameSpeed=5000;
+
+    collidableMeshList=[];
+    // corridorCounter=0;
+
+    points=0;
+
+    for( var i = scene.children.length - 1; i >= 0; i--) { 
+        if (scene.children[i].isMesh )//&& scene.children[i].geometry.name == 'laser')
+            scene.remove(scene.children[i]);
+    }
+
+    collidableMeshList = [];
+    
+    robot.position.z-=140;
+    camera.position.z-=140;
+    robot.position.x=0;
+
+    startGame();
 }

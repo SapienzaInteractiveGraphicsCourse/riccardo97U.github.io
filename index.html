@@ -65,7 +65,7 @@
                 margin: auto;
                 margin-top: 100px;
                 padding:0;
-                width: 50%;
+                width: 80%;
 
                 z-index: 10;
                 animation-name: animatetop;
@@ -78,23 +78,23 @@
             }
 
             .modal-header {
-                background-color: #491212;
+                /* background-color: #491212; */
                 padding:10px 0;
-                color: white;
+                /* color: white; */
                 margin-bottom: 10px;
                 text-align: center;
                 font-size: 40px;
-                width:100%;
+                width: 100%;
             }
 
             .modal-body {
-                background-color: rgb(65, 62, 66);
+                /* background-color: rgb(65, 62, 66);
                 color:white;
-                font-size: 35px;
+                font-size: 35px; */
                 text-align: center;
                 margin: 0;
                 padding:40px 0;
-                width:100%;
+                width: 100%;
             }
 
             #score{
@@ -104,6 +104,119 @@
                 z-index: 1;
                 color : white;
                 font-size: 30px;
+            }
+
+            #btn--yp {
+                box-sizing: content-box;
+                position: fixed;
+                z-index: 9;
+                bottom: 1em;
+                right: 1em;
+                border: solid 1em transparent;
+                width: 4.625em;
+                height: 3.25em;
+                background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/icon-yp.svg) 50%/cover content-box;
+                font: 16px/ 1.25 trebuchet ms, sans-serif;
+                text-indent: 200vw;
+                text-shadow: none;
+                filter: grayscale(1) drop-shadow(0 0 1px #e8e0e0);
+                transition: .5s;
+                white-space: nowrap;
+            }
+            #btn--yp:before {
+                box-sizing: inherit;
+                position: absolute;
+                left: 0;
+                bottom: 100%;
+                margin: 1em -.5em;
+                padding: .5em;
+                width: 100%;
+                border-radius: 5px;
+                background: #e8e0e0;
+                color: #000;
+                text-align: center;
+                text-decoration: none;
+                text-indent: 0vw;
+                white-space: normal;
+                animation: float 1s ease-in-out infinite alternate;
+                content: attr(data-txt);
+            }
+            #btn--yp:hover, #btn--yp:focus {
+                outline: none;
+                filter: grayscale(0) drop-shadow(0 0 1px crimson);
+            }
+            @keyframes float {
+                to {
+                    transform: translateY(0.75em);
+                }
+            }
+            button span, button span[aria-hidden='true']:after {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+
+            button {
+                --hue: 203;
+                --sat: 100%;
+                --lum: 32%;
+                display: block;
+                border: none;
+                margin: 3em auto;
+                padding: 0;
+                position: relative;
+                width: 9em;
+                height: 3em;
+                background: none;
+                font: 3em/ 3.21em advent pro, sans-serif;
+                filter: contrast(0.5);
+                transition: .3s;
+                cursor: pointer;
+            }
+            button:focus, button:hover {
+                outline: none;
+                filter: none;
+            }
+            button:active {
+                transform: translateY(0.25rem);
+            }
+            button:active [aria-hidden='true'] {
+                transform: translateY(var(--ty, 0.25rem));
+            }
+            button:active [aria-hidden='true']:nth-child(2) {
+                --ty: .75rem ;
+            }
+            button span[aria-hidden='true'] {
+                filter: drop-shadow(0.125rem 0.1875rem hsl(var(--hue), calc(var(--sat) - 25%), 25%)) drop-shadow(-0.1875rem -0.125rem hsl(var(--hue), calc(var(--sat) - 41%), calc(var(--lum) + 31%))) drop-shadow(1.5rem 1.5rem 1.5rem rgba(0, 0, 0, 0.75));
+            }
+            button span[aria-hidden='true']:after {
+                background: hsl(var(--hue), var(--sat), var(--lum));
+                clip-path: polygon(100% 0, 91% 91%, 13% 100%, 0 35%);
+                content: "";
+            }
+            button span[aria-hidden='true']:nth-child(2) {
+                --sat: 0%;
+                --lum: 83%;
+            }
+            button span[aria-hidden='true']:nth-child(2):after {
+                clip-path: polygon(3% 21%, 85% 25%, 75% 93%, 14% 87%);
+            }
+            button span:last-child {
+                background: radial-gradient(black, white 83%) 50% 0.125em/0.5em 50%;
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                filter: drop-shadow(2px 2px #313131);
+            }
+            button:nth-of-type(2) {
+                --hue: 187 ;
+            }
+            @media (max-width: 800px) {
+                html {
+                    font-size: 2vw;
+                }
             }
         </style>
     </head>
@@ -125,18 +238,29 @@
 
         <div id="gameOver" class="modal-content">
 
-            <div class="modal-header">
-                GAME OVER
-            </div>
-            <div class="modal-body" id="finalScore">
-                Total Score:
-            </div>
+            <button style="outline:none; filter: none;" class="modal-header"><span aria-hidden="true"></span>
+                <span aria-hidden="true"></span><span>Game Over</span>
+            </button>
+            <button class="modal-body" style="outline:none; filter: none;"><span aria-hidden="true"></span>
+                <span aria-hidden="true"></span><span id="finalScore">Total Score: </span>
+            </button>
+            <button id="restartbtn"><span aria-hidden="true"></span>
+                <span aria-hidden="true"></span><span>Restart</span>
+            </button>
         </div>
         
+        <div id="gameMenu" class="modal-content" style="display: none;">
+            <button id="playbtn"><span aria-hidden="true"></span>
+                <span aria-hidden="true"></span><span id="btnText">Start</span>
+            </button>
+            <button id="audiobtn"><span aria-hidden="true"></span>
+                <span aria-hidden="true"></span><span id="btnAudio">Audio ON</span>
+            </button>
+        </div>
     </body>
 
     <audio src='/res/audio/SpaceEngine 0.990 - Steam Release Trailer [YTmp3.net].mp3' id='audio'  allow="autoplay"></audio>
-    <audio src='/res/audio/footstep.mp3' id='audio2'  allow="autoplay"></audio>
+    <!-- <audio src='/res/audio/footstep.mp3' id='audio2'  allow="autoplay"></audio> -->
     <audio src='/res/audio/explosion.mp3' id='audio3'  allow="autoplay"></audio>
     <audio src='/res/audio/laser.mp3' id='audio4'  allow="autoplay"></audio>
 
