@@ -658,6 +658,7 @@ function restartGame(){
     robot.position.z-=140;
     camera.position.z-=140;
     robot.position.x=0;
+    robot.position.y=0.22;
 
     startGame();
 }
