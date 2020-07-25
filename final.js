@@ -438,18 +438,8 @@ const render = function() {
 
 window.addEventListener('keydown', (e) => {
     //space bar
-    if(e.keyCode == 32) {
-        if(started && !jumping && !sliding && !exploding) {
-            document.getElementById('btnText').innerHTML = 'Resume';
-            document.getElementById('gameMenu').style.display = 'block';
-
-            groupRun.removeAll(); 
-            groupJump.removeAll(); 
-            groupMove.removeAll();
-            TWEEN.removeAll();
-            started=false;
-            running = false;
-        }
+    if(e.keyCode == 80) {
+        pauseGame();
         // else if(!exploding) startGame();
     }
     // up arrow
@@ -635,6 +625,20 @@ function changeAudio(){
     
 }
 
+function pauseGame(){
+    if(started && !jumping && !sliding && !exploding) {
+        document.getElementById('btnText').innerHTML = 'Resume';
+        document.getElementById('gameMenu').style.display = 'block';
+
+        groupRun.removeAll(); 
+        groupJump.removeAll(); 
+        groupMove.removeAll();
+        TWEEN.removeAll();
+        started=false;
+        running = false;
+    }
+}
+
 function restartGame(){
     document.getElementById('gameOver').style.display = 'none';
     running = false;
@@ -655,8 +659,8 @@ function restartGame(){
 
     collidableMeshList = [];
     
-    robot.position.z-=140;
-    camera.position.z-=140;
+    robot.position.z-=150;
+    camera.position.z-=150;
     robot.position.x=0;
     robot.position.y=0.22;
 

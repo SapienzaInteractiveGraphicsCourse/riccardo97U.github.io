@@ -69,9 +69,8 @@
 
                 z-index: 10;
                 animation-name: animatetop;
-                animation-duration: 0.4s
+                animation-duration: 0.1s
             }
-            /* Add Animation */
             @keyframes animatetop {
                 from {top: -300px; opacity: 0}
                 to {top: 0; opacity: 0}
@@ -138,7 +137,7 @@
                 text-decoration: none;
                 text-indent: 0vw;
                 white-space: normal;
-                animation: float 1s ease-in-out infinite alternate;
+                animation: float 0.2s ease-in-out infinite alternate;
                 content: attr(data-txt);
             }
             #btn--yp:hover, #btn--yp:focus {
@@ -164,7 +163,7 @@
                 --lum: 32%;
                 display: block;
                 border: none;
-                margin: 3em auto;
+                margin: 1em auto;
                 padding: 0;
                 position: relative;
                 width: 9em;
@@ -250,11 +249,18 @@
         </div>
         
         <div id="gameMenu" class="modal-content" style="display: none;">
-            <button id="playbtn"><span aria-hidden="true"></span>
+            <button id="playbtn" style="float: left; margin: 0.5em 2em;"><span aria-hidden="true"></span>
                 <span aria-hidden="true"></span><span id="btnText">Start</span>
             </button>
-            <button id="audiobtn"><span aria-hidden="true"></span>
+            <button id="audiobtn" style="float: right; margin: 0.5em 2em"><span aria-hidden="true"></span>
                 <span aria-hidden="true"></span><span id="btnAudio">Audio ON</span>
+            </button>
+
+            <button style="outline:none; filter: none; width: 20em;"><span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span style="font-size: .8em;">
+                    Move: &#8592; &#8594; &#8593; &#8595; Pause: P 
+                </span>
             </button>
         </div>
     </body>
