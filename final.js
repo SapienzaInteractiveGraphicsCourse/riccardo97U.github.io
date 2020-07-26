@@ -60,7 +60,7 @@ manager.onProgress = (url, itemsLoaded, itemsTotal) => {
 
 const models = {
   robot:    { url: './res/models/biped_robot/scene.gltf' },
-  corridor:    { url: './res/models/corridor2/scene.gltf' },
+  corridor:    { url: './res/models/corridor2/cor.gltf' },
 };
 {
   const gltfLoader = new GLTFLoader(manager);
